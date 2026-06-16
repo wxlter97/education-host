@@ -33,16 +33,16 @@ jobs:
         with:
           repository: ${{ vars.PAGES_REPO }}       # e.g. "usuario/usuario.github.io"
           token: ${{ secrets.PAGES_DEPLOY_TOKEN }}
-          path: pages-repo
+          path: education-host
 
       - name: Copy generated site into Pages repo
         run: |
           # Remove old generated content (keep anything you want to preserve manually)
-          rm -rf pages-repo/cursos
-          cp -r dist/ pages-repo/cursos
+          rm -rf education-host/cursos
+          cp -r dist/ education-host/cursos
 
       - name: Commit and push
-        working-directory: pages-repo
+        working-directory: education-host
         run: |
           git config user.name "drive-sync-bot"
           git config user.email "bot@noreply.github.com"
