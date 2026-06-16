@@ -1,0 +1,51 @@
+name: Sync Drive → GH Pages
+
+on:
+  schedule:
+    - cron: "0 5 * * *" # Every day at 5:00 AM UTC
+  workflow_dispatch:     # Allow manual trigger from GitHub UI
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install google-api-python-client google-auth
+
+      - name: Run sync script
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          DRIVE_FOLDER_ID: ${{ vars.DRIVE_FOLDER_ID }}
+          SITE_TITLE: ${{ vars.SITE_TITLE }}
+        run: python scripts/sync.py
+
+      - name: Checkout GH Pages repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.PAGES_REPO }}       # e.g. "usuario/usuario.github.io"
+          token: ${{ secrets.PAGES_DEPLOY_TOKEN }}
+          path: pages-repo
+
+      - name: Copy generated site into Pages repo
+        run: |
+          # Remove old generated content (keep anything you want to preserve manually)
+          rm -rf pages-repo/cursos
+          cp -r dist/ pages-repo/cursos
+
+      - name: Commit and push
+        working-directory: pages-repo
+        run: |
+          git config user.name "drive-sync-bot"
+          git config user.email "bot@noreply.github.com"
+          git add .
+          git diff --cached --quiet || git commit -m "chore: sync from Drive [$(date -u '+%Y-%m-%d %H:%M UTC')]"
+          git push
