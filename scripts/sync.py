@@ -77,13 +77,13 @@ def build_tree(folder_id: str, rel_path: Path, depth: int = 0) -> list[dict]:
                 "children": children,
             })
         elif name.endswith(".html"):
-            dest = DIST_DIR / node_path / name
+            dest = DIST_DIR / rel_path / name
             print(f"  Downloading: {dest}")
             download_file(item["id"], dest)
             nodes.append({
                 "type":     "file",
                 "name":     name,
-                "rel_path": node_path / name,
+                "rel_path": rel_path / name,
                 "file_id":  item["id"],
             })
         else:
@@ -96,11 +96,10 @@ def build_tree(folder_id: str, rel_path: Path, depth: int = 0) -> list[dict]:
 
 
 def slugify(text: str) -> str:
-    """Simple slug: lowercase, spaces → hyphens, remove unsafe chars."""
     import re
     text = text.lower().strip()
     text = re.sub(r"[\s_]+", "-", text)
-    text = re.sub(r"[^\w\-]", "", text)
+    text = re.sub(r"[^\w\-\.]", "", text)  # ← agrega \. para preservar puntos
     return text
 
 
