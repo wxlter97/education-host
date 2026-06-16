@@ -11,10 +11,10 @@ jobs:
 
     steps:
       - name: Checkout this repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.11"
 
@@ -29,7 +29,7 @@ jobs:
         run: python scripts/sync.py
 
       - name: Checkout GH Pages repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: ${{ vars.PAGES_REPO }}       # e.g. "usuario/usuario.github.io"
           token: ${{ secrets.PAGES_DEPLOY_TOKEN }}
